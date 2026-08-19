@@ -202,5 +202,4 @@ ID=1234-5678 seq=10 len=256 | ...
 ## Disclaimer
 
 이 프로젝트는 Frida Child Gating 및 Windows 프로세스/네트워크 instrumentation 동작을 연구하고 학습하기 위한 예제입니다.
-
 본인이 소유하거나 테스트 권한을 가진 시스템에서만 사용하십시오.
