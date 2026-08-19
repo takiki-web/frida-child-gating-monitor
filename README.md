@@ -1,5 +1,3 @@
-# frida-child-gating-monitor
-Frida child-gating monitor for automatically instrumenting spawned Windows worker
 # Frida Child Gating + ws2_32 Monitor
 
 Windows 환경에서 **Frida Child Gating**을 이용해 런처가 생성하는 자식 프로세스를 자동으로 추적하고, 지정한 프로세스에만 `ws2_32.dll`의 `send()` / `recv()` 후킹을 적용하는 예제입니다.
