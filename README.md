@@ -1,4 +1,4 @@
-# Frida Child Gating + ws2_32 Monitor
+# Frida Child Gating hook
 
 Windows 환경에서 **Frida Child Gating**을 이용해 런처가 생성하는 자식 프로세스를 자동으로 추적하고, 지정한 프로세스에만 `ws2_32.dll`의 `send()` / `recv()` 후킹을 적용하는 예제입니다.
 
@@ -94,6 +94,7 @@ child-added
           ├─ attach()
           ├─ Script Load
           └─ resume()
+        
 Frida 17.16.3
 child-added
     │
@@ -131,91 +132,14 @@ def is_target(path):
         proc.lower() in name
         for proc in MONITOR_PROCS
     )
-```
 
-## ws2_32 네트워크 모니터
-
-계측 대상에서는 다음 Windows Socket API를 후킹합니다.
-
-```text
-ws2_32.dll!send
-ws2_32.dll!recv
-```
-
-현재 구현은 네트워크 데이터를 변경하지 않고 **관찰만 수행합니다.**
-
-`send()`에서는 전송 버퍼를 확인하고:
-
-```javascript
-Interceptor.attach(pSend, {
-    onEnter(args) {
-        report(
-            '요청',
-            args[1],
-            args[2].toInt32()
-        );
-    }
-});
-```
-
-`recv()`에서는 함수가 반환한 실제 수신 길이를 이용합니다.
-
-```javascript
-Interceptor.attach(pRecv, {
-    onEnter(args) {
-        this.buf = args[1];
-    },
-
-    onLeave(retval) {
-        const len = retval.toInt32();
-
-        if (len > 0) {
-            report(
-                '응답',
-                this.buf,
-                len
-            );
-        }
-    }
-});
 ```
 
 ## 요구사항
 
 * Windows
 * Python 3
-* Frida
-
-설치:
-
-```bash
-pip install frida
-```
-
-버전 확인:
-
-```bash
-python -c "import frida; print(frida.__version__)"
-```
-
-## 설정
-
-스크립트 상단의 `TARGET`과 `MONITOR_PROCS`를 환경에 맞게 수정합니다.
-
-```python
-TARGET = r"C:\Example\launcher.exe"
-
-MONITOR_PROCS = [
-    "launcher.exe",
-    "worker.exe",
-]
-```
-
-## 실행
-
-```bash
-python child_gating_monitor.py
-```
+* Frida 17.16.3
 
 ## 실행 예시
 
