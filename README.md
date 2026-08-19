@@ -84,10 +84,7 @@ launcher.exe
 * Frida 17.16.x 환경의 callback blocking을 피하기 위한 Thread 기반 처리
 
 ## 동작 구조
-Frida 버전별 동작
-
-<table> <tr> <td valign="top">
-
+동작 구조
 Frida 17.8.2
 child-added
     │
@@ -97,9 +94,6 @@ child-added
           ├─ attach()
           ├─ Script Load
           └─ resume()
-
-</td> <td valign="top">
-
 Frida 17.16.3
 child-added
     │
@@ -112,51 +106,7 @@ child-added
                 ├─ Script Load
                 └─ resume()
 
-</td> </tr> </table>
-
 테스트한 Windows 환경에서는 Frida 17.8.2에서 child-added callback 내부의 직접 attach() / resume()이 정상 동작했지만, Frida 17.16.3에서는 blocking 현상이 관찰되어 별도 Thread에서 처리하도록 변경했습니다.
-
-## Frida 17.16.x 처리
-
-초기 구현에서는 `child-added` callback 내부에서 직접 다음 API를 호출했습니다.
-
-```python
-device.attach(child.pid)
-device.resume(child.pid)
-```
-
-일부 Windows + Frida 17.16.x 환경에서 callback 내부의 동기 API 호출이 진행되지 않는 현상을 확인했습니다.
-
-예를 들어:
-
-```text
-[child-added] pid=16764 path=C:\Example\regsvr32.exe
-    -> 대상 아님
-    -> resume 시도
-```
-
-이 상태에서 진행되지 않았지만, `resume()`을 별도 Python Thread에서 실행하도록 변경한 뒤에는:
-
-```text
-[child-added] pid=16764 path=C:\Example\regsvr32.exe
-    -> 대상 아님 (attach 생략)
-    -> resume thread 시작 pid=16764
-    -> resume OK pid=16764
-```
-
-정상적으로 다음 child까지 진행할 수 있었습니다.
-
-계측 대상 프로세스의 `attach()` 역시 callback에서 직접 수행하지 않고 별도 Thread에서 처리합니다.
-
-```python
-def on_child(child):
-
-    if not is_target(child.path):
-        resume_async(child.pid)
-        return
-
-    instrument_child_async(child)
-```
 
 ## 프로세스 필터링
 
