@@ -112,7 +112,11 @@ child-added
                 └─ resume()
 ```
 
-테스트한 Windows 환경에서는 Frida 17.8.2에서 child-added callback 내부의 직접 attach() / resume()이 정상 동작했지만, Frida 17.16.3에서는 blocking 현상이 관찰되어 별도 Thread에서 처리하도록 변경했습니다.
+테스트한 Windows 환경에서는 Frida 17.8.2에서 `child-added` callback 내부의 직접 `attach()` / `resume()`이 정상 동작했지만, Frida 17.16.3에서는 blocking 현상이 관찰되어 별도 Thread에서 처리하도록 변경했습니다.
+Frida 17.16.0부터 spawn-gating에 watchdog이 추가되어, gated process가 일정 시간 이상 suspend 상태로 남으면 gating을 자동으로 비활성화하고 프로세스를 resume하도록 동작합니다.
+현재 테스트에서는 `child-added` callback 내부의 동기 `attach()` / `resume()` 호출에서 blocking이 관찰되었기 때문에, callback이 빠르게 반환되도록 해당 작업을 별도 Thread로 분리했습니다.
+> 17.16.3에서 관찰된 blocking 현상과 watchdog의 직접적인 인과관계는 확인되지 않았으며, 본 구현은 테스트 환경에서 확인한 동작을 기준으로 작성되었습니다.
+
 
 ## 프로세스 필터링
 
