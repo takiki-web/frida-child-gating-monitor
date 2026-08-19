@@ -84,8 +84,9 @@ launcher.exe
 * Frida 17.16.x 환경의 callback blocking을 피하기 위한 Thread 기반 처리
 
 ## 동작 구조
-동작 구조
-Frida 17.8.2
+### Frida 17.8.2
+
+```text
 child-added
     │
     ├─ 일반 child → resume()
@@ -94,8 +95,11 @@ child-added
           ├─ attach()
           ├─ Script Load
           └─ resume()
-        
-Frida 17.16.3
+```
+
+### Frida 17.16.3
+
+```text
 child-added
     │
     ├─ 일반 child
@@ -106,6 +110,7 @@ child-added
                 ├─ attach()
                 ├─ Script Load
                 └─ resume()
+```
 
 테스트한 Windows 환경에서는 Frida 17.8.2에서 child-added callback 내부의 직접 attach() / resume()이 정상 동작했지만, Frida 17.16.3에서는 blocking 현상이 관찰되어 별도 Thread에서 처리하도록 변경했습니다.
 
